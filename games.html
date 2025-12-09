@@ -163,8 +163,7 @@
     }
 
     if (!site) {
-        errorBox.style.display = "block";
-        title.textContent = "No Game Found";
+        window.location.href = "games.html";
     } else {
         title.textContent = "Loading…";
         loader.style.display = "block";
