@@ -2,31 +2,24 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Game Viewer</title>
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      height: 100vh;
-      overflow: hidden;
-    }
-    iframe {
-      width: 100vw;
-      height: 100vh;
-      border: none;
-    }
-  </style>
+  <title>Black Hook — Viewer</title>
+  <style>body{margin:0;background:#000;color:#fff}iframe{width:100vw;height:100vh;border:0}</style>
 </head>
 <body>
 <script>
-  // get ?site=URL from the page
   const params = new URLSearchParams(location.search);
-  const site = params.get("site");
-
-  if (!site) {
-    document.body.innerHTML = "<h1 style='color:white'>No game selected.</h1>";
+  const site = params.get('site');
+  if(!site){
+    document.body.innerHTML = '<div style="padding:24px;color:#fff">No game selected.</div>';
   } else {
-    document.body.innerHTML = `<iframe src="${site}"></iframe>`;
+    // Basic sanity: add http if user pasted without scheme (rare)
+    let url = site;
+    try{
+      url = decodeURIComponent(site);
+    }catch(e){ url = site; }
+    // If url doesn't start with scheme, try to add https://
+    if(!/^[a-zA-Z]+:\/\//.test(url)) url = 'https://' + url;
+    document.body.innerHTML = '<iframe src="' + url + '" sandbox="allow-forms allow-scripts allow-same-origin allow-popups"></iframe>';
   }
 </script>
 </body>
