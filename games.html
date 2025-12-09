@@ -137,9 +137,8 @@
         window.location.href = "games.html";
     }
 
-    if (!site) {
-        errorBox.style.display = "block";
-        title.textContent = "No Game Found";
+   if (!site) {
+    title.textContent = "No Game Selected";
     } else {
         title.textContent = "Loading…";
         loader.style.display = "block";
