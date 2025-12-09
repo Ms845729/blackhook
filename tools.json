@@ -1,27 +1,27 @@
 [
   {
     "name": "YouTube",
-    "image": "media/youtube.png",
-    "url": "https://youtube.com"
+    "image": "613tube.png",
+    "url": "https://613tu.be/"
   },
   {
     "name": "Movies",
-    "image": "media/movies.png",
-    "url": "https://example.com/movies"
+    "image": "Film.png",
+    "url": "https://heartive.pages.dev/"
   },
   {
     "name": "Soundboard",
-    "image": "media/soundboard.png",
-    "url": "https://example.com/soundboard"
+    "image": "Soundboard.png",
+    "url": "https://soundboardguys.com/"
   },
   {
     "name": "AI Chat",
-    "image": "media/ai.png",
-    "url": "https://example.com/ai"
+    "image": "Dolphin.png",
+    "url": "https://deepai.org/"
   },
   {
     "name": "Unblocker",
-    "image": "media/unblocker.png",
-    "url": "https://example.com/unblocker"
+    "image": "Doge.png",
+    "url": "https://kwispy.vercel.app/app"
   }
 ]
