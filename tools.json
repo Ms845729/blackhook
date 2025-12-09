@@ -1,0 +1,27 @@
+[
+  {
+    "name": "YouTube",
+    "image": "media/youtube.png",
+    "url": "https://youtube.com"
+  },
+  {
+    "name": "Movies",
+    "image": "media/movies.png",
+    "url": "https://example.com/movies"
+  },
+  {
+    "name": "Soundboard",
+    "image": "media/soundboard.png",
+    "url": "https://example.com/soundboard"
+  },
+  {
+    "name": "AI Chat",
+    "image": "media/ai.png",
+    "url": "https://example.com/ai"
+  },
+  {
+    "name": "Unblocker",
+    "image": "media/unblocker.png",
+    "url": "https://example.com/unblocker"
+  }
+]
