@@ -10,6 +10,8 @@
         --accent:#ff3030;
         --bg:#0b0b0d;
         --text:#f5f5f5;
+
+
     }
 
     body {
@@ -36,6 +38,12 @@
     #title {
         font-size: 22px;
         color: var(--accent);
+
+
+
+
+
+
     }
 
     #controls button {
@@ -46,11 +54,15 @@
         border: none;
         border-radius: 6px;
         cursor: pointer;
+        margin-left: 10px;
         transition: 0.2s;
     }
 
     #controls button:hover {
         background: #ff0000;
+
+
+
     }
 
     #frame {
@@ -79,6 +91,9 @@
 
     @keyframes spin {
         to { transform: rotate(360deg); }
+
+
+
     }
 
     /* Error Message */
@@ -103,6 +118,11 @@
     }
 </style>
 
+
+
+
+
+
 </head>
 <body>
 
@@ -111,6 +131,7 @@
 
     <div id="controls">
         <button onclick="goBack()">Return</button>
+        <button onclick="fullscreen()">Fullscreen</button>
     </div>
 </div>
 
@@ -137,11 +158,17 @@
         window.location.href = "games.html";
     }
 
-   if (!site) {
-    title.textContent = "No Game Selected";
+    function fullscreen() {
+        iframe.requestFullscreen();
+    }
+
+    if (!site) {
+        errorBox.style.display = "block";
+        title.textContent = "No Game Found";
     } else {
         title.textContent = "Loading…";
         loader.style.display = "block";
+
         iframe.src = site;
 
         let loaded = false;
@@ -161,7 +188,8 @@
             }
         }, 6000);
     }
+
+
 </script>
 
 </body>
-</html>
