@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Black Hook – Games (CSV loader)</title>
+  <style>/* minimal styles copied from your theme */:root{--accent:#00aaff;--bg:#0b0b0d;--card:#141418;--text:#e6e6e6}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial}.container{width:90%;max-width:1100px;margin:32px auto;padding:32px;background:rgba(20,20,22,0.9);border-radius:12px}.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:20px}.game-card{background:var(--card);border-radius:10px;overflow:hidden;cursor:pointer}.game-image-wrapper{position:relative;padding-top:100%}.game-image-wrapper img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.game-info{padding:10px}</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Black Hook — Games</h1>
+    <div id="game-grid" class="game-grid"></div>
+  </div>
+
+  <script>
+    // Fetch either JSON (array) or CSV (raw) from /games.json or /games.csv
+    const NO_IMAGE = 'https://blackhook.site/media/noimage.png';
+
+    async function loadGames(){
+      // try JSON first
+      try{
+        const r = await fetch('/games.json', {cache:'no-store'});
+        if(r.ok){
+          const data = await r.json();
+          if(Array.isArray(data)) return data;
+          if(data && typeof data.raw === 'string') return parseCsv(data.raw);
+        }
+      }catch(e){}
+
+      // fallback to CSV
+      try{
+        const r2 = await fetch('/games.csv', {cache:'no-store'});
+        if(r2.ok){
+          const text = await r2.text();
+          return parseCsv(text);
+        }
+      }catch(e){}
+
+      return [];
+    }
+
+    function parseCsv(text){
+      return text.split('\n').map(l=>l.trim()).filter(Boolean).map(line=>{
+        const parts = line.split(/,\s*/);
+        const name = parts.shift()||'Untitled';
+        const image = parts.shift()||NO_IMAGE;
+        const url = parts.join(',')||'#';
+        return {name,image,url};
+      });
+    }
+
+    function render(games){
+      const grid = document.getElementById('game-grid');
+      grid.innerHTML = '';
+      games.forEach(g=>{
+        const a = document.createElement('a');
+        a.href = '#';
+        a.className = 'game-card';
+        a.onclick = (e)=>{e.preventDefault(); window.location.href = '/viewer.html?site='+encodeURIComponent(g.url)};
+        a.innerHTML = `<div class="game-image-wrapper"><img src="${g.image}" alt="${g.name}" onerror="this.src='${NO_IMAGE}'"></div><div class="game-info"><strong>${g.name}</strong></div>`;
+        grid.appendChild(a);
+      })
+    }
+
+    (async ()=>{ const games = await loadGames(); render(games); })();
+  </script>
+</body>
+</html>
