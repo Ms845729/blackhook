@@ -23,5 +23,10 @@
     "name": "Unblocker",
     "image": "Doge.png",
     "url": "https://kwispy.vercel.app/app"
+  },
+    {
+    "name": "Cloud Moon",
+    "image": "cl.jpeg",
+    "url": "https://web.cloudmoonapp.com/"
   }
 ]
