@@ -3,23 +3,62 @@
 <head>
   <meta charset="utf-8">
   <title>Black Hook — Viewer</title>
-  <style>body{margin:0;background:#000;color:#fff}iframe{width:100vw;height:100vh;border:0}</style>
+  <style>
+    body { margin: 0; background: #000; color: #fff; font-family: sans-serif; }
+    iframe { width: 100vw; height: 100vh; border: 0; display: block; }
+    
+    /* Button Styling */
+    #fs-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    #fs-btn:hover {
+      background: rgba(50, 50, 50, 0.9);
+      border-color: #fff;
+    }
+  </style>
 </head>
 <body>
+
 <script>
+  // 1. Define the Fullscreen function globally
+  function goFullscreen() {
+    const iframe = document.getElementById('game-frame');
+    if (iframe.requestFullscreen) {
+      iframe.requestFullscreen();
+    } else if (iframe.webkitRequestFullscreen) { /* Safari */
+      iframe.webkitRequestFullscreen();
+    } else if (iframe.msRequestFullscreen) { /* IE11 */
+      iframe.msRequestFullscreen();
+    }
+    // Note: Mouse lock usually triggers automatically by the game 
+    // when you click inside the iframe after it is fullscreen.
+  }
+
   const params = new URLSearchParams(location.search);
   const site = params.get('site');
+
   if(!site){
     document.body.innerHTML = '<div style="padding:24px;color:#fff">No game selected.</div>';
   } else {
-    // Basic sanity: add http if user pasted without scheme (rare)
     let url = site;
-    try{
-      url = decodeURIComponent(site);
-    }catch(e){ url = site; }
-    // If url doesn't start with scheme, try to add https://
+    try { url = decodeURIComponent(site); } catch(e){ url = site; }
     if(!/^[a-zA-Z]+:\/\//.test(url)) url = 'https://' + url;
-    document.body.innerHTML = '<iframe src="' + url + '" sandbox="allow-forms allow-scripts allow-same-origin allow-popups"></iframe>';
+    
+    // 2. Inject Iframe AND the Button
+    // We added an ID 'game-frame' to the iframe so the button can find it
+    document.body.innerHTML = 
+      '<iframe id="game-frame" src="' + url + '" allow="pointer-lock; fullscreen" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-pointer-lock" allowfullscreen></iframe>' +
+      '<button id="fs-btn" onclick="goFullscreen()">Fullscreen Mode</button>';
   }
 </script>
 </body>
