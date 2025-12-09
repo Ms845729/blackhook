@@ -50,131 +50,114 @@
   </div>
 
 <script>
-const NO_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
-const GRID = document.getElementById('game-grid');
-const STATUS = document.getElementById('status');
+const NO_IMAGE =
+  "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg";
 
-function setStatus(msg, isError=false){
+const GRID = document.getElementById("game-grid");
+const STATUS = document.getElementById("status");
+
+function setStatus(msg, err = false) {
   STATUS.textContent = msg;
-  STATUS.className = 'status' + (isError? ' err':'');
-  console.log('STATUS:', msg);
+  STATUS.style.background = err ? "rgba(80,0,0,0.45)" : "rgba(0,0,0,0.35)";
+  console.log("[BlackHook]", msg);
 }
 
-// try multiple paths for resilience
-async function tryFetchJSONPaths(paths){
-  for(const p of paths){
-    try{
-      const r = await fetch(p, {cache:'no-store'});
-      if(!r.ok){
-        console.warn('fetch', p, '->', r.status);
-        continue;
+// --- IMPORTANT: Detect GitHub Pages prefix ---
+const repoName = window.location.pathname.split("/")[1]; // "blackhook"
+const basePath = `/${repoName}/`; // "/blackhook/"
+
+const candidatePaths = [
+  "games.json",
+  "./games.json",
+  basePath + "games.json",
+  basePath + "/games.json",
+  "data/games.json",
+  basePath + "data/games.json",
+  basePath + "/data/games.json",
+];
+
+async function loadGamesJson() {
+  for (const path of candidatePaths) {
+    try {
+      console.log("Trying:", path);
+      const res = await fetch(path, { cache: "no-store" });
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json)) {
+          console.log("Loaded from:", path);
+          return json;
+        }
+      } else {
+        console.warn("Failed:", path, res.status);
       }
-      const json = await r.json();
-      if(Array.isArray(json)) return {src:p, data:json};
-      if(json && typeof json.raw === 'string') {
-        // wrapper with raw CSV string
-        return {src:p, data: parseRaw(json.raw)};
-      }
-    }catch(e){
-      console.warn('error fetching', p, e);
-      continue;
+    } catch (err) {
+      console.warn("Error fetching:", path, err);
     }
   }
   return null;
 }
 
-async function tryFetchCSVPaths(paths){
-  for(const p of paths){
-    try{
-      const r = await fetch(p, {cache:'no-store'});
-      if(!r.ok) { console.warn('csv fetch', p, '->', r.status); continue; }
-      const text = await r.text();
-      return {src:p, data: parseRaw(text)};
-    }catch(e){ console.warn('csv error', p, e); continue; }
-  }
-  return null;
-}
+function render(games) {
+  GRID.innerHTML = "";
 
-function parseRaw(raw){
-  return raw.split('\\n').map(l=>l.trim()).filter(Boolean).map(line=>{
-    const parts = line.split(/,\\s*/);
-    const name = parts.shift() || 'Untitled';
-    const image = parts.shift() || NO_IMAGE;
-    const url = parts.join(',') || '#';
-    return {name,image,url};
-  });
-}
-
-function render(games){
-  GRID.innerHTML = '';
-  if(!games || !games.length){
-    setStatus('No games found in data.', true);
+  if (!games || !games.length) {
+    setStatus("No games found.", true);
     return;
   }
-  setStatus('Loaded ' + games.length + ' games.');
-  games.forEach(g=>{
-    const a = document.createElement('a');
-    a.className = 'game-card';
-    a.href = '#';
-    a.onclick = (e)=>{ e.preventDefault(); if(g.url && g.url !== '#') location.href = 'viewer.html?site=' + encodeURIComponent(g.url); };
 
-    const thumb = document.createElement('div'); thumb.className = 'thumb';
-    const img = document.createElement('img');
-    img.loading = 'lazy';
-    img.decoding = 'async';
+  setStatus(`Loaded ${games.length} games.`);
+
+  games.forEach((g) => {
+    const card = document.createElement("a");
+    card.className = "game-card";
+    card.href = "#";
+    card.onclick = (e) => {
+      e.preventDefault();
+      window.location.href =
+        "viewer.html?site=" + encodeURIComponent(g.url || "#");
+    };
+
+    const thumb = document.createElement("div");
+    thumb.className = "thumb";
+
+    const img = document.createElement("img");
     img.src = g.image || NO_IMAGE;
-    img.alt = g.name;
-    img.onerror = ()=> img.src = NO_IMAGE;
+    img.onerror = () => (img.src = NO_IMAGE);
     thumb.appendChild(img);
 
-    const info = document.createElement('div'); info.className = 'info';
-    const title = document.createElement('div'); title.className = 'title'; title.textContent = g.name;
-    info.appendChild(title);
+    const info = document.createElement("div");
+    info.className = "info";
+    info.innerHTML = `<div class="title">${g.name}</div>`;
 
-    a.appendChild(thumb); a.appendChild(info);
-    GRID.appendChild(a);
+    card.appendChild(thumb);
+    card.appendChild(info);
+    GRID.appendChild(card);
   });
 }
 
-// robust loader
-(async function init(){
-  setStatus('Trying to load games.json...');
-  // try JSON common locations
-  const jsonPaths = ['./games.json', 'games.json', './data/games.json', 'data/games.json'];
-  const jsonResult = await tryFetchJSONPaths(jsonPaths);
-  if(jsonResult){
-    console.log('Loaded JSON from', jsonResult.src);
-    render(jsonResult.data);
-    setupSearch(jsonResult.data);
+(async function init() {
+  setStatus("Loading game list…");
+  const games = await loadGamesJson();
+
+  if (!games) {
+    setStatus(
+      "ERROR: games.json not found. Make sure it's inside /blackhook/ folder.",
+      true
+    );
     return;
   }
 
-  // try CSV fallbacks
-  setStatus('games.json not found — trying games.csv...');
-  const csvPaths = ['./games.csv','games.csv','./data/games.csv','data/games.csv'];
-  const csvResult = await tryFetchCSVPaths(csvPaths);
-  if(csvResult){
-    console.log('Loaded CSV from', csvResult.src);
-    render(csvResult.data);
-    setupSearch(csvResult.data);
-    return;
-  }
+  render(games);
 
-  // nothing found
-  setStatus('Could not load games.json or games.csv. Make sure the file is in the same folder as this page and is valid JSON/CSV.', true);
-})();
-
-function setupSearch(allGames){
-  const input = document.getElementById('search');
-  input.addEventListener('input', e=>{
-    const q = e.target.value.trim().toLowerCase();
-    if(!q) { render(allGames); return; }
-    const filtered = allGames.filter(g => g.name.toLowerCase().includes(q));
+  const search = document.getElementById("search");
+  search.addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase();
+    const filtered = games.filter((g) =>
+      g.name.toLowerCase().includes(q)
+    );
     render(filtered);
   });
-}
-
-document.getElementById('reload').addEventListener('click', ()=> location.reload());
+})();
 </script>
 </body>
 </html>
