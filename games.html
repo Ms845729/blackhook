@@ -73,7 +73,7 @@
 
     .thumb{
       width:100%;
-      padding-top:56%;
+      padding-top:100%; /* square images */
       background:#0f1113;
       position:relative;
     }
@@ -170,11 +170,8 @@
         const info = document.createElement('div');
         info.className = 'info';
         info.innerHTML = `
-          <div class="title">${g.name}</div>
-          <div class="url">${g.url}</div>
-        `;
-
-        card.appendChild(thumb);
+          <div class=\"title\">${g.name}</div>
+        `;b);
         card.appendChild(info);
         grid.appendChild(card);
       });
