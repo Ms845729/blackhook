@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Game Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      height: 100vh;
+      overflow: hidden;
+    }
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+<script>
+  // get ?site=URL from the page
+  const params = new URLSearchParams(location.search);
+  const site = params.get("site");
+
+  if (!site) {
+    document.body.innerHTML = "<h1 style='color:white'>No game selected.</h1>";
+  } else {
+    document.body.innerHTML = `<iframe src="${site}"></iframe>`;
+  }
+</script>
+</body>
+</html>
