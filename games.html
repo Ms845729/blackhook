@@ -98,53 +98,59 @@
     <div id="game-grid" class="game-grid"></div>
   </div>
 
-  <script>
-    const NO_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
+<script>
+  const NO_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
 
-    async function loadGames(){
-      try{
-        const r = await fetch('games.json', {cache: 'no-store'});
-        const data = await r.json();
-        return Array.isArray(data) ? data : [];
-      }catch(e){
-        console.error('Failed to load games.json:', e);
-        return [];
-      }
+  async function loadGames(){
+    try{
+      const repo = window.location.pathname.split('/')[1]; // "blackhook"
+      const r = await fetch(`/${repo}/games.json`, {cache: 'no-store'});
+      const data = await r.json();
+      return Array.isArray(data) ? data : [];
+    }catch(e){
+      console.error('Failed to load games.json:', e);
+      return [];
     }
+  }
 
-    function render(games){
-      const grid = document.getElementById('game-grid');
-      grid.innerHTML = '';
+  function render(games){
+    const grid = document.getElementById('game-grid');
+    grid.innerHTML = '';
 
-      games.forEach(g=>{
-        const a = document.createElement('a');
-        a.className = 'game-card';
-        a.href = '#';
-        a.onclick = e=>{ e.preventDefault(); window.location.href = 'viewer.html?site='+encodeURIComponent(g.url) };
+    games.forEach(g=>{
+      const a = document.createElement('a');
+      a.className = 'game-card';
+      a.href = '#';
+      a.onclick = e=>{
+        e.preventDefault();
+        window.location.href =
+          'viewer.html?site=' + encodeURIComponent(g.url);
+      };
 
-        const thumb = document.createElement('div');
-        thumb.className = 'game-image-wrapper';
+      const thumb = document.createElement('div');
+      thumb.className = 'game-image-wrapper';
 
-        const img = document.createElement('img');
-        img.src = g.image || NO_IMAGE;
-        img.onerror = ()=>{ img.src = NO_IMAGE; };
+      const img = document.createElement('img');
+      img.src = g.image || NO_IMAGE;
+      img.onerror = ()=> img.src = NO_IMAGE;
 
-        thumb.appendChild(img);
+      thumb.appendChild(img);
 
-        const info = document.createElement('div');
-        info.className = 'game-info';
-        info.innerHTML = `<strong>${g.name}</strong>`;
+      const info = document.createElement('div');
+      info.className = 'game-info';
+      info.innerHTML = `<strong>${g.name}</strong>`;
 
-        a.appendChild(thumb);
-        a.appendChild(info);
-        grid.appendChild(a);
-      });
-    }
+      a.appendChild(thumb);
+      a.appendChild(info);
+      grid.appendChild(a);
+    });
+  }
 
-    (async()=>{
-      const games = await loadGames();
-      render(games);
-    })();
-  </script>
+  (async()=>{
+    const games = await loadGames();
+    render(games);
+  })();
+</script>
+
 </body>
 </html>
